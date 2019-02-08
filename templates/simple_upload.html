@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload</title>
+</head>
+<body>
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'w3.css' %}">
+
+<style>
+    .bigimg {
+        background-position: center;
+        background-size: 800px;
+        background-image: url({% static 'skeleton-at-ships-wheel-large.jpg' %});
+        min-height: 500px;
+        background-repeat: no-repeat;
+    }
+
+    .headerfont {
+        font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+        font-weight: bolder;
+        text-shadow: 2px 2px 1px #3a3a3a;
+    }
+</style>
+
+    <header class="bigimg w3-display-container w3-grayscale-min">
+        <div class="w3-container w3-center" style="padding: 128px 16px">
+            <h1 class="w3-margin w3-jumbo w3-text-white headerfont">FUCKING WEB APP</h1>
+        </div>
+    </header>
+
+
+  <form method="post" enctype="multipart/form-data" id="uploadForm">
+    {% csrf_token %}
+      <div class="w3-container w3-center">
+        <p class="w3-padding-16">SingleFile: <input type="file" name="myfiles" id="file" onclick="resetFolder()"> </p>
+        <p class="w3-margin-bottom">Directory: <input type="file" name="myfiles" id="folder" webkitdirectory mozdirectory onclick="resetFile()"/></p>
+        <div class="w3-padding-32">
+            <button type="submit" class="w3-button w3-round-medium w3-padding-16" style="background-color: #dddddd">Upload & Scan</button>
+        </div>
+      </div>
+  </form>
+
+    <script>
+        function resetFile() {
+            document.getElementById("file").value = "";
+        }
+
+        function resetFolder() {
+            document.getElementById("folder").value = "";
+        }
+    </script>
+</body>
+</html>
