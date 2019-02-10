@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -125,17 +126,17 @@ else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../../test/Atlassian/')
 
 ATLASSIAN_SETTINGS = {
     'jira': {
         'url': 'http://localhost:8080/',
         'username': 'admin',
-        'password': 'AdminPassword'
+        'password': 'TheAdminPassw0rd'
     },
     'bitbucket': {
         'url': 'http://localhost:7990/',
         'username': 'admin',
-        'password': 'AdminPassword',
+        'password': 'TheAdminPassw0rd',
     }
 }

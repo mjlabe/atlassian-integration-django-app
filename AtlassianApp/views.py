@@ -6,6 +6,8 @@ import subprocess
 import zipfile
 from shutil import copyfile
 
+from django.utils.text import slugify
+
 from AtlassianApp.console_app import run_console_app
 
 from AtlassianIntegration.settings import STATIC_ROOT, MEDIA_ROOT
@@ -16,7 +18,7 @@ from django.core.files.storage import FileSystemStorage
 from django.utils.datetime_safe import datetime
 from django.utils.encoding import smart_str
 
-from AtlassianAPI.git.git_commands import *
+from AtlassianAPI.bitbucket.bitbucket import create_repo, branch_repo
 
 
 def simple_upload(request):
@@ -48,13 +50,11 @@ def simple_upload(request):
         # return response
 
         # initialize repo and commit files
-        git_init(uploaded_file_path, uploaded_file_path)
-        copyfile(os.path.join(STATIC_ROOT, 'git', '.gitignore'), os.path.join(uploaded_file_path, '.gitignore'))
-        git_add_all(uploaded_file_path, uploaded_file_path)
-        git_commit('init commit', uploaded_file_path)
+        project_id = 'TEST'
+        repo_slug = slugify(file_name + upload_id)
+        create_repo(uploaded_file_path, project_id, repo_slug)
+        branch_repo(project_id, repo_slug, 'test_branch')
 
         # create bitbucket repo and push
-
-
 
     return render(request, 'simple_upload.html')
