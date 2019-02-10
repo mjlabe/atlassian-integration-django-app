@@ -50,7 +50,7 @@ def simple_upload(request):
         # return response
 
         # initialize repo and commit files
-        project_id = 'TEST'
+        project_id = 'test'
         repo_slug = slugify(file_name + upload_id)
         create_repo(uploaded_file_path, project_id, repo_slug)
         branch_repo(project_id, repo_slug, 'test_branch')

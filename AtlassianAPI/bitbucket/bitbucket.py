@@ -22,9 +22,8 @@ def create_repo(working_directory, project_key, repo_name):
     repo.git_commit_all("init commit")
 
     # create BitBucket repo
-    url = ATLASSIAN_SETTINGS['bitbucket']['url'] + 'rest/api/1.0/projects/' + project_key + '/repos'
+    url = ATLASSIAN_SETTINGS['bitbucket']['http_url'] + 'rest/api/1.0/projects/' + project_key + '/repos'
     headers = {'Content-Type': 'application/json'}
-    # TODO: error 400, "name" unexpected
     data = {
         "name": repo_name,
         "scmId": "git",
@@ -42,17 +41,21 @@ def create_repo(working_directory, project_key, repo_name):
     print(r.status_code)
     print(r.text)
     # print(r.content)
-    remote_url = ATLASSIAN_SETTINGS['bitbucket']['url'] + 'scm/' + project_key + '/' + repo_name + '.git'
+
+    # ssh: // git @ localhost: 7999 / test / image002jpgcah9adi0mcsea4dgjji2.git
+    remote_url = ATLASSIAN_SETTINGS['bitbucket']['ssh_url'] + project_key + '/' + repo_name + '.git'
 
     # push local repo to BitBucket
-    repo.git_add_remote(remote_url)
-    repo.git_push_remote()
+    add = repo.git_add_remote(remote_url)
+    print(add)
+    push = repo.git_push_remote()
+    print(push)
 
 
 def branch_repo(project_key, repo_slug, branch_name):
     # create BitBucket repo
     url = ATLASSIAN_SETTINGS['bitbucket'][
-              'url'] + 'rest/api/1.0/projects/' + project_key + 'repos/' + repo_slug + 'branches'
+              'http_url'] + 'rest/api/1.0/projects/' + project_key + 'repos/' + repo_slug + 'branches'
     headers = {'Content-Type': 'application/json'}
     data = {
         "name": branch_name,

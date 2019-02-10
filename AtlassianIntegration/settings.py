@@ -128,14 +128,16 @@ else:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '../../test/Atlassian/')
 
+# The first time connecting, the user must push manually to "trust" the remote url
 ATLASSIAN_SETTINGS = {
     'jira': {
-        'url': 'http://localhost:8080/',
+        'url': 'localhost:8080/',
         'username': 'admin',
         'password': 'TheAdminPassw0rd'
     },
     'bitbucket': {
-        'url': 'http://localhost:7990/',
+        'http_url': 'http://localhost:7990/',   # HTTP address
+        'ssh_url': 'ssh://git@localhost:7999/',   # SSH address
         'username': 'admin',
         'password': 'TheAdminPassw0rd',
     }
