@@ -131,7 +131,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '../../test/Atlassian/')
 # The first time connecting, the user must push manually to "trust" the remote url
 ATLASSIAN_SETTINGS = {
     'jira': {
-        'url': 'localhost:8080/',
+        'http_url': 'http://localhost:8080/',
         'username': 'admin',
         'password': 'TheAdminPassw0rd'
     },

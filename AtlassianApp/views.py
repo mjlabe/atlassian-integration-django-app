@@ -5,10 +5,9 @@ import string
 import subprocess
 import zipfile
 from shutil import copyfile
+import json
 
 from django.utils.text import slugify
-
-from AtlassianApp.console_app import run_console_app
 
 from AtlassianIntegration.settings import STATIC_ROOT, MEDIA_ROOT
 
@@ -19,6 +18,7 @@ from django.utils.datetime_safe import datetime
 from django.utils.encoding import smart_str
 
 from AtlassianAPI.bitbucket.bitbucket import create_repo, branch_repo
+from AtlassianAPI.jira.jira import create_issue
 
 
 def simple_upload(request):
@@ -50,10 +50,11 @@ def simple_upload(request):
         # return response
 
         # initialize repo and commit files
-        project_id = 'test'
+        project_id = 'TEST'
         repo_slug = slugify(file_name + upload_id)
-        create_repo(uploaded_file_path, project_id, repo_slug)
-        branch_repo(project_id, repo_slug, 'dev')
+        create_repo(working_directory=uploaded_file_path, project_key=project_id, repo_name=repo_slug)
+        issue_key = json.loads(create_issue(project_key=project_id, summary=repo_slug, issue_type='Task').text)['key']
+        branch_repo(project_key=project_id, repo_slug=repo_slug, branch_name=issue_key + '-' + repo_slug + '-dev')
 
         # create bitbucket repo and push
 
