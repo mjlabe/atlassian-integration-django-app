@@ -1,24 +1,18 @@
 import os
 import random
-import shutil
 import string
-import subprocess
-import zipfile
-from shutil import copyfile
 import json
 
 from django.utils.text import slugify
 
-from AtlassianIntegration.settings import STATIC_ROOT, MEDIA_ROOT
+from AtlassianIntegration.settings import MEDIA_ROOT
 
-from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.utils.datetime_safe import datetime
-from django.utils.encoding import smart_str
 
-from AtlassianAPI.bitbucket.bitbucket import create_repo, branch_repo
-from AtlassianAPI.jira.jira import create_issue
+from AtlassianAPI.bitbucket import create_repo, branch_repo
+from AtlassianAPI.jira import create_issue
 
 
 def simple_upload(request):

@@ -19,6 +19,9 @@ class Git:
     def git_add_all(self):
         return subprocess.check_output(['git', 'add', '-A', self.working_directory], cwd=self.working_directory)
 
+    def git_status(self):
+        return subprocess.check_output(['git', 'status', self.working_directory], cwd=self.working_directory)
+
     def git_commit(self, message):
         return subprocess.check_output(['git', 'commit',  '-m', message], cwd=self.working_directory)
 

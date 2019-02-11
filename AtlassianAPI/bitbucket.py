@@ -7,7 +7,7 @@ from shutil import copyfile
 import requests
 import json
 from AtlassianIntegration.settings import ATLASSIAN_SETTINGS, STATIC_ROOT
-from AtlassianAPI.git.git_commands import *
+from AtlassianAPI.git import Git
 
 
 # [BITBUCKET-BASE-URL], i.e.: https://bitbucket.org/
