@@ -55,7 +55,7 @@ def create_repo(working_directory, project_key, repo_name):
 def branch_repo(project_key, repo_slug, branch_name):
     # create BitBucket repo
     url = ATLASSIAN_SETTINGS['bitbucket'][
-              'http_url'] + 'rest/api/1.0/projects/' + project_key + 'repos/' + repo_slug + 'branches'
+              'http_url'] + 'rest/api/1.0/projects/' + project_key + '/repos/' + repo_slug + '/branches'
     headers = {'Content-Type': 'application/json'}
     data = {
         "name": branch_name,
@@ -69,6 +69,6 @@ def branch_repo(project_key, repo_slug, branch_name):
     r = requests.post(url, auth=(ATLASSIAN_SETTINGS['bitbucket']['username'],
                                  ATLASSIAN_SETTINGS['bitbucket']['password']),
                       headers=headers,
-                      data=data)
+                      data=json.dumps(data))
     print(r.status_code)
     print(r.text)

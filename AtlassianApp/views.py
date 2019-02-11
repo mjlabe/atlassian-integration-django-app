@@ -53,7 +53,7 @@ def simple_upload(request):
         project_id = 'test'
         repo_slug = slugify(file_name + upload_id)
         create_repo(uploaded_file_path, project_id, repo_slug)
-        branch_repo(project_id, repo_slug, 'test_branch')
+        branch_repo(project_id, repo_slug, 'dev')
 
         # create bitbucket repo and push
 
