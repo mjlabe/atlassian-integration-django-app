@@ -72,13 +72,18 @@ def simple_upload(request):
         repo.git_push_remote()
 
         # create JIRA issue and branch
-        # TODO: better error handling
-        jira = Jira(project_key=project_id)
+        # TODO: better error handling (do more than print)
+        auth = ATLASSIAN_SETTINGS['jira']['username'], ATLASSIAN_SETTINGS['jira']['password']
+        jira = Jira(base_http_url=ATLASSIAN_SETTINGS['jira']['http_url'], project_key=project_id, auth=auth)
+
         try:
             issue_key = json.loads(
                 jira.create_issue(summary=repo_slug, description='dev branch', issue_type='Task').text)['key']
+            # verify issue was created
+            issue = jira.get_issues(issue_key).json()
+            if issue['key'] != issue_key:
+                print('ERROR: Issue not created successfully.' + str(issue))
             bb.branch_repo(repo_name=repo_slug, branch_name=issue_key + '-' + repo_slug + '-dev')
-
         except ValueError:
             print('Decoding JSON has failed')
 
@@ -86,7 +91,7 @@ def simple_upload(request):
         try:
             branches = bb.get_repo_branches(repo_name=repo_slug).json()
             if branches['size'] < 2:
-                print('ERROR: Branches not created successfully.' + branches.text)
+                print('ERROR: Branches not created successfully.' + str(branches))
         except ValueError:
             print('Decoding JSON has failed')
 
