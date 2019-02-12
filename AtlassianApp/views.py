@@ -2,17 +2,19 @@ import os
 import random
 import string
 import json
+from shutil import copyfile
 
 from django.utils.text import slugify
 
-from AtlassianIntegration.settings import MEDIA_ROOT
+from AtlassianAPI.git import Git
+from AtlassianIntegration.settings import MEDIA_ROOT, STATIC_ROOT, ATLASSIAN_SETTINGS
 
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.utils.datetime_safe import datetime
 
-from AtlassianAPI.bitbucket import create_repo, branch_repo
-from AtlassianAPI.jira import create_issue
+from AtlassianAPI.jira import Jira
+from AtlassianAPI.bitbucket import BitBucket
 
 
 def simple_upload(request):
@@ -44,12 +46,48 @@ def simple_upload(request):
         # return response
 
         # initialize repo and commit files
-        project_id = 'TEST'
+        project_id = ATLASSIAN_SETTINGS['bitbucket']['projects']['TEST']
         repo_slug = slugify(file_name + upload_id)
-        create_repo(working_directory=uploaded_file_path, project_key=project_id, repo_name=repo_slug)
-        issue_key = json.loads(create_issue(project_key=project_id, summary=repo_slug, issue_type='Task').text)['key']
-        branch_repo(project_key=project_id, repo_slug=repo_slug, branch_name=issue_key + '-' + repo_slug + '-dev')
 
-        # create bitbucket repo and push
+        # create local git repo
+        # TODO: error handling
+        repo = Git(uploaded_file_path)
+        repo.git_init()
+        copyfile(os.path.join(STATIC_ROOT, 'git', '.gitignore'), os.path.join(uploaded_file_path, '.gitignore'))
+        repo.git_add_all()
+        repo.git_commit_all("init commit")
+
+        # create bitBucket repo
+        # TODO: error handling
+        bb_auth = ATLASSIAN_SETTINGS['bitbucket']['username'], ATLASSIAN_SETTINGS['bitbucket']['password']
+        bb_http_url = ATLASSIAN_SETTINGS['bitbucket']['http_url']
+        bb = BitBucket(base_http_url=bb_http_url, project_key=project_id, auth=bb_auth)
+        bb.create_repo(repo_name=repo_slug)
+
+        # push local repo to BitBucket
+        # ssh: // git @ localhost: 7999 / test / repo_name.git
+        # TODO: error handling
+        remote_url = ATLASSIAN_SETTINGS['bitbucket']['ssh_url'] + project_id + '/' + repo_slug + '.git'
+        repo.git_add_remote(remote_url)
+        repo.git_push_remote()
+
+        # create JIRA issue and branch
+        # TODO: better error handling
+        jira = Jira(project_key=project_id)
+        try:
+            issue_key = json.loads(
+                jira.create_issue(summary=repo_slug, description='dev branch', issue_type='Task').text)['key']
+            bb.branch_repo(repo_name=repo_slug, branch_name=issue_key + '-' + repo_slug + '-dev')
+
+        except ValueError:
+            print('Decoding JSON has failed')
+
+        # verify branches were created
+        try:
+            branches = bb.get_repo_branches(repo_name=repo_slug).json()
+            if branches['size'] < 2:
+                print('ERROR: Branches not created successfully.' + branches.text)
+        except ValueError:
+            print('Decoding JSON has failed')
 
     return render(request, 'simple_upload.html')

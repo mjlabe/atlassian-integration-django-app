@@ -140,5 +140,8 @@ ATLASSIAN_SETTINGS = {
         'ssh_url': 'ssh://git@localhost:7999/',   # SSH address
         'username': 'admin',
         'password': 'TheAdminPassw0rd',
+        'projects': {
+            'TEST': 'TEST',
+        }
     }
 }

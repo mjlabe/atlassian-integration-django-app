@@ -1,74 +1,54 @@
-# ===============
-# get user
-# ===============
-import os
-from shutil import copyfile
-
 import requests
 import json
-from AtlassianIntegration.settings import ATLASSIAN_SETTINGS, STATIC_ROOT
-from AtlassianAPI.git import Git
 
 
-# [BITBUCKET-BASE-URL], i.e.: https://bitbucket.org/
+class BitBucket:
 
+    def __init__(self, base_http_url, project_key, auth):
+        self.base_http_url = base_http_url
+        self.project_key = project_key
+        self.auth = auth
 
-def create_repo(working_directory, project_key, repo_name):
-    # create local git repo
-    repo = Git(working_directory)
-    repo.git_init()
-    copyfile(os.path.join(STATIC_ROOT, 'git', '.gitignore'), os.path.join(working_directory, '.gitignore'))
-    repo.git_add_all()
-    repo.git_commit_all("init commit")
+    def create_repo(self, repo_name):
 
-    # create BitBucket repo
-    url = ATLASSIAN_SETTINGS['bitbucket']['http_url'] + 'rest/api/1.0/projects/' + project_key + '/repos'
-    headers = {'Content-Type': 'application/json'}
-    data = {
-        "name": repo_name,
-        "scmId": "git",
-        "forkable": False,
-        "is_private": True
-    }
+        # create BitBucket repo
+        url = self.base_http_url + 'rest/api/1.0/projects/' + self.project_key + '/repos'
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "name": repo_name,
+            "scmId": "git",
+            "forkable": False,
+            "is_private": True
+        }
 
-    # get user
-    # [USERNAME], i.e.: myuser
-    # [PASSWORD], i.e.: itspassword
-    username, password = ATLASSIAN_SETTINGS['bitbucket']['username'], ATLASSIAN_SETTINGS['bitbucket']['password']
-    r = requests.post(url,
-                      auth=(username, password),
-                      headers=headers, data=json.dumps(data))
-    print(r.status_code)
-    print(r.text)
-    # print(r.content)
+        # POST request
+        return requests.post(url, auth=self.auth, headers=headers, data=json.dumps(data))
 
-    # ssh: // git @ localhost: 7999 / test / image002jpgcah9adi0mcsea4dgjji2.git
-    remote_url = ATLASSIAN_SETTINGS['bitbucket']['ssh_url'] + project_key + '/' + repo_name + '.git'
+    def branch_repo(self, repo_name, branch_name):
+        # create BitBucket repo
+        url = self.base_http_url + 'rest/api/1.0/projects/' + self.project_key + '/repos/' + repo_name + '/branches'
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "name": branch_name,
+            "startPoint": "master",
+            "message": "created dev branch"
+        }
 
-    # push local repo to BitBucket
-    add = repo.git_add_remote(remote_url)
-    print(add)
-    push = repo.git_push_remote()
-    print(push)
+        # POST request
+        return requests.post(url, auth=self.auth, headers=headers, data=json.dumps(data))
 
+    def get_repo_branches(self, repo_name):
+        # create BitBucket repo
+        url = self.base_http_url + 'rest/api/1.0/projects/' + self.project_key + '/repos/' + repo_name + '/branches'
+        headers = {'Content-Type': 'application/json'}
 
-def branch_repo(project_key, repo_slug, branch_name):
-    # create BitBucket repo
-    url = ATLASSIAN_SETTINGS['bitbucket'][
-              'http_url'] + 'rest/api/1.0/projects/' + project_key + '/repos/' + repo_slug + '/branches'
-    headers = {'Content-Type': 'application/json'}
-    data = {
-        "name": branch_name,
-        "startPoint": "master",
-        "message": "created dev branch"
-    }
+        # GET request
+        return requests.get(url, auth=self.auth, headers=headers)
 
-    # get user
-    # [USERNAME], i.e.: myuser
-    # [PASSWORD], i.e.: itspassword
-    r = requests.post(url, auth=(ATLASSIAN_SETTINGS['bitbucket']['username'],
-                                 ATLASSIAN_SETTINGS['bitbucket']['password']),
-                      headers=headers,
-                      data=json.dumps(data))
-    print(r.status_code)
-    print(r.text)
+    def get_repos(self, limit):
+        # create BitBucket repo
+        url = self.base_http_url + 'rest/api/1.0/projects/' + self.project_key + '/repos/?limit=' + str(limit)
+        headers = {'Content-Type': 'application/json'}
+
+        # GET request
+        return requests.get(url, auth=self.auth, headers=headers)

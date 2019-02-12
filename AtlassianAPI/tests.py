@@ -1,7 +1,11 @@
 from django.test import TestCase
 import shutil
-from AtlassianAPI.bitbucket import *
-from AtlassianAPI.jira import *
+import os
+from AtlassianAPI.bitbucket import BitBucket
+from AtlassianAPI.jira import Jira
+from AtlassianAPI.git import Git
+from unittest.mock import MagicMock, patch
+from AtlassianIntegration.settings import ATLASSIAN_SETTINGS
 
 
 class AtlassianGitTests(TestCase):
@@ -21,7 +25,7 @@ class AtlassianGitTests(TestCase):
         repo = Git(self.test_dir)
         r = repo.git_init()
         self.assertIs(r.decode('utf-8').startswith('Initialized empty Git repository'), True)
-        copyfile(os.path.join(self.cwd, 'AtlassianAPI', 'test', 'git', '.gitignore'), os.path.join(self.test_dir, '.gitignore'))
+        shutil.copyfile(os.path.join(self.cwd, 'AtlassianAPI', 'test', 'git', '.gitignore'), os.path.join(self.test_dir, '.gitignore'))
         repo.git_add_all()
         r = repo.git_status()
         self.assertIs(r.decode('utf-8').startswith(
@@ -34,8 +38,23 @@ class AtlassianGitTests(TestCase):
         shutil.rmtree(self.test_dir)
 
     # TODO: create tests
-    def bitbucket_test(self):
-        pass
+    @patch('example.models.request')
+    def bitbucket_test(self, req):
+        # verify API comms
+        project_id = ATLASSIAN_SETTINGS['bitbucket']['projects'].values()[0]
+        bb_auth = ATLASSIAN_SETTINGS['bitbucket']['username'], ATLASSIAN_SETTINGS['bitbucket']['password']
+        bb_http_url = ATLASSIAN_SETTINGS['bitbucket']['http_url']
+        bb = BitBucket(base_http_url=bb_http_url, project_key=project_id, auth=bb_auth)
+
+        # get list of repos and check that first repo has at least 1 branch
+        repos = bb.get_repos(10).json()['values']
+        first_repo = repos[0]['slug']
+        self.assertIs(bb.get_repo_branches(repo_name=first_repo).json()['size'] > 0, True)
+
+        # TODO: mock API responses
+        # url = MagicMock()
+        # self.example._get_page(url)
+        # req.assert_called_once_with('GET', url)
 
     # TODO: create tests
     def jira_test(self):
