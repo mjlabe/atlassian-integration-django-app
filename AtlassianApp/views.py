@@ -95,4 +95,9 @@ def simple_upload(request):
         except ValueError:
             print('Decoding JSON has failed')
 
+        attachments = [os.path.join('AtlassianAPI', 'test', 'attachments', 'image001.png'),
+                       os.path.join('AtlassianAPI', 'test', 'attachments', 'image002.jpg')]
+
+        jira.add_attachment('TEST-35', attachments)
+
     return render(request, 'simple_upload.html')
