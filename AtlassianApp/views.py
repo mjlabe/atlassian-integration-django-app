@@ -52,10 +52,10 @@ def simple_upload(request):
         # create local git repo
         # TODO: error handling
         repo = Git(uploaded_file_path)
-        repo.git_init()
+        r1 = repo.git_init()
         copyfile(os.path.join(STATIC_ROOT, 'git', '.gitignore'), os.path.join(uploaded_file_path, '.gitignore'))
-        repo.git_add_all()
-        repo.git_commit_all("init commit")
+        r2 = repo.git_add_all()
+        r3 = repo.git_commit("init commit")
 
         # create bitBucket repo
         # TODO: error handling

@@ -63,7 +63,7 @@ class AtlassianGitTests(TestCase):
         jira = Jira(base_http_url=ATLASSIAN_SETTINGS['jira']['http_url'], project_key=project_id, auth=auth)
 
         # verify issues exist
-        issue = jira.get_issues(limit=10).json()
+        issue = jira.get_issues(max_results=10).json()
         if issue['size'] > 0:
             print('ERROR: Issue not created successfully.' + str(issue))
 
