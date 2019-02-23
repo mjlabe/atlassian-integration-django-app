@@ -70,3 +70,8 @@ class AtlassianGitTests(TestCase):
     def cleanup(self):
         shutil.rmtree(self.test_dir)
 
+
+tests = AtlassianGitTests
+tests.git_test
+tests.bitbucket_test
+tests.jira_test

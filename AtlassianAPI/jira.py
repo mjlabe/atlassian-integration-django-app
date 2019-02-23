@@ -4,11 +4,37 @@ import ntpath
 
 
 class Jira:
-    """
+    """Common JIRA API methods.
 
+    JIRA's REST APIs provide access to resources (data entities) via URI paths. To use a REST API, your application will
+    make an HTTP request and parse the response. The JIRA REST API uses JSON as its communication format, and the
+    standard HTTP methods like GET, PUT, POST and DELETE (see API descriptions below for which methods are available for
+    each resource). URIs for JIRA's REST API resource have the following structure:
+
+    http://host:port/context/rest/api-name/api-version/resource-name
+
+    Currently there are two API names available:
+
+    auth - for authentication-related operations, and
+    api - for everything else.
+
+    The current API version is 2. However, there is also a symbolic version, called latest, which resolves to the latest
+    version supported by the given JIRA instance. As an example, if you wanted to retrieve the JSON representation of
+    issue JRA-9 from Atlassian's public issue tracker, you would access:
+
+    https://jira.atlassian.com/rest/api/latest/issue/JRA-9
     """
 
     def __init__(self, base_http_url, project_key, auth):
+        """Initialize JIRA object with base_http_url, project_key, and auth.
+
+        :param base_http_url: URL for JIRA site - http://host:port/ (i.e. http://localhost:8080/)
+        :type base_http_url: str
+        :param project_key: The project matching the projectKey supplied in the resource path as shown in URL.
+        :type project_key: str
+        :param auth: Tuple of username and password for authentication.
+        :type auth: tuple[str, str]
+        """
         self.base_http_url = base_http_url
         self.project_key = project_key
         self.auth = auth
@@ -49,9 +75,7 @@ class Jira:
         }
 
         r = requests.post(url, auth=self.auth, headers=headers, data=json.dumps(data))
-        print(json.dumps(data))
-        print(r.status_code)
-        print(r.text)
+
         return r
 
     def get_issues(self, issue_id=None, max_results=10, start_at=0):
@@ -65,8 +89,7 @@ class Jira:
         :type issue_id: str
         :param max_results: The "maxResults" parameter indicates how many results to return per page.
         :type max_results: int
-        :param start_at: The "startAt" parameter indicates which item should be used as the first item in the page of
-            results.
+        :param start_at: Item that should be used as the first item in the page of results.
         :type start_at: int
         :return:
             STATUS 200: Success - application/jsonReturns a full representation of a JIRA issue in JSON format.
@@ -82,8 +105,7 @@ class Jira:
         headers = {'Content-Type': 'application/json'}
 
         r = requests.get(url, auth=self.auth, headers=headers)
-        print(r.status_code)
-        print(r.text)
+
         return r
 
     def add_attachment(self, issue_id, attachments):
@@ -128,4 +150,5 @@ class Jira:
                 if not any(d['filename'] == filename for d in jira_attachments):
                     # does not exist
                     r.append('ERROR: File ' + filename + ' was not attached.')
+
         return r
